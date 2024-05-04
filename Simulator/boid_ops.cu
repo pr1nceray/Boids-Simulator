@@ -53,7 +53,6 @@ __global__  void boid_behave(environment local_env, boids_inter boids)
 	}
 	
 	if (close_x_count > 0) {
-		//vector2f normalized = generate_normal(close_x * local_env.get_avoid_factor(), close_y * local_env.get_avoid_factor());
 		cur.vel.x += (close_x * local_env.get_avoid_factor()); //normalized.x * cur.speed_max;
 		cur.vel.y += close_y * local_env.get_avoid_factor(); //normalized.y * cur.speed_max;
 	}
@@ -71,7 +70,6 @@ __global__  void boid_behave(environment local_env, boids_inter boids)
 	}
 
 	cur.limit_speed();
-	//printf("%d \n", static_cast<int>(local_env.get_margin()));
 	adjust_bounds(local_env,cur);
 	cur.calculate_angle();
 	cur.update_position();
@@ -121,11 +119,11 @@ __device__ __inline__ void adjust_bounds(environment& local_env, boid & cur)
 
 	if (cur.y < margin_y)
 	{
-		cur.vel.y += local_env.get_turn_factor();
+		cur.vel.y += local_env.get_turn_factor() * .5;
 	}
 	else if (cur.y > static_cast<int>(local_env.get_bounds_y() - margin_y))
 	{
-		cur.vel.y -= local_env.get_turn_factor();
+		cur.vel.y -= local_env.get_turn_factor() * .5;
 	}
 
 }

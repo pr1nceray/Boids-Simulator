@@ -20,8 +20,8 @@ __device__ struct boid
 	__host__ __device__ boid()
 	{
 		x = 600 + (400 - rand() % 800);
-		y = 400 + (300 - rand() % 600);
-		vel = {((rand() % 500) / 250.0f), ((rand() % 500) / 250.0f) };
+		y = 400 + (200 - rand() % 400);
+		vel = {1.0f - ((rand() % 500) / 250.0f), 1.0f - ((rand() % 500) / 250.0f) };
 	}
 	
 	
@@ -56,18 +56,6 @@ __device__ struct boid
 
 	 __device__ __inline__ void calculate_angle()
 	 {	
-		 /*
-		 if (abs(vel.x) <= epsilon) 
-		 {
-			 rot = vel.y < 0 ? 180:0;
-			 return;
-		 }
-		 if (abs(vel.y) <= epsilon)
-		 {
-			 rot = vel.x <= 0 ? 270 : 90;
-			 return;
-		 }
-		 */
 		 rot = ((atan2f(vel.y,vel.x)) * 180/3.14159265) + 90;
 	 }
 

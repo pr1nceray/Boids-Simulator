@@ -38,14 +38,14 @@ __host__ __device__ struct environment
 	}
 
 	__host__ environment(size_t num_boids_in, size_t bounds_x_in = 1200, size_t bounds_y_in = 800,
-		size_t margin_x_in = 200, size_t margin_y_in = 100, size_t close_in = 8, size_t visible_in = 40) :
+		size_t margin_x_in = 200, size_t margin_y_in = 100, size_t close_in = 8, size_t visible_in = 60) :
 		bounds_x(bounds_x_in), bounds_y(bounds_y_in), margin_x(margin_x_in), margin_y(margin_y_in),
 		close_range(close_in), visible_range(visible_in)
 	{
 		avoid_factor = .05f;
 		align_factor = .05f;
-		center_factor = .001f;
-		turn_factor = .4f;
+		center_factor = .001;
+		turn_factor = 1.0f;
 	}
 
 
