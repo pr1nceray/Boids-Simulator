@@ -1,1 +1,1 @@
-# Boids-Simulator
+# Simulator
