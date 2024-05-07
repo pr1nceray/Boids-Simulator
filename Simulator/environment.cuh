@@ -12,7 +12,7 @@
 __host__ __device__ struct environment
 {
 	private:
-	size_t margin_x, margin_y;
+	size_t margin_x, margin_y; //number of pixels inbetween the edge of screen and bounding box.
 	size_t bounds_x, bounds_y; //x width, y width of simulation
 
 	size_t close_range, visible_range; //range that a boid considers close, and visible
@@ -23,13 +23,11 @@ __host__ __device__ struct environment
 	public:
 	
 	/*
-	* 
 	* Constructors, Assignment Operator, and Destructors
-	* 
 	*/
 
 	__host__ environment() :
-		bounds_x(0), bounds_y(0), close_range(0), visible_range(0)
+		bounds_x(0), bounds_y(0), close_range(0), visible_range(0), margin_x(0), margin_y(0)
 	{
 		avoid_factor = .05f;
 		align_factor = .05f;
@@ -49,12 +47,6 @@ __host__ __device__ struct environment
 	}
 
 
-
-	/*
-	* 
-	* Main functions needed
-	* 
-	*/
 
 
 	/*
@@ -160,8 +152,8 @@ __host__ __device__ struct boids_inter {
 
 	public:
 	
-	boid* boids_host; // boids on the host device
-	boid* boids_dev; // boids on da gpu.
+	boid* boids_host; // boids on the host
+	boid* boids_dev; // boids on the gpu.
 
 	size_t boid_len; //length of boids
 
@@ -190,10 +182,7 @@ __host__ __device__ struct boids_inter {
 	}
 
 
-	/*
-	* Interface functions
-	* 
-	*/
+
 
 	__host__ void delete_dev() {
 		if (boid_len == 0) {
@@ -205,7 +194,6 @@ __host__ __device__ struct boids_inter {
 
 	/*
 	* Getters/Setters for the boid variables
-	* 
 	*/
 
 

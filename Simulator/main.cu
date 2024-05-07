@@ -4,7 +4,7 @@
 
 int main()
 {
-	Window render(2000);
+	Window render(1024);
 
 	render.Display();
 }

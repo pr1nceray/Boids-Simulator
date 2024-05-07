@@ -9,11 +9,17 @@
 
 class Window{
 	public:
-		Window(size_t num_sim_in, int width_in = 1900, int height_in = 999) 
+
+		/*
+		* Window Class Constructor 
+		* Initializes the window and necessary resources for simulation
+		* Doesn't initialize boids. 
+		*/
+		Window(size_t num_sim_in, int width_in = 1900, int height_in = 1000) 
 			: num_sim(num_sim_in), width(width_in),height(height_in) 
 		{
 			window.create(sf::VideoMode(width, height), "Sim Viewer");
-			env = environment(num_sim_in, width_in, height_in, 200, 100, 12, 40);
+			env = environment(num_sim_in, width_in, height_in, 200, 100, 12, 60);
 			sprite_ptr = new sf::Sprite[num_sim];
 			draw_bounding_box();
 			init_sprites(num_sim);
@@ -21,17 +27,25 @@ class Window{
 			window.setFramerateLimit(60);
 		}
 
+		/*
+		* Window Class's Main function.
+		* Initialize the boids array
+		* Grab the updates for the boids, window, and draw the boids.
+		*/
 		void Display() {
 			std::srand(std::time(0));
-			boids_inter boids(num_sim); //create and malloc resources.
+			boids_inter boids(num_sim); 
 			while (true) {
-				//print_list_host(env, boids);
 				get_updates();
 				update_boids(boids);
 				draw_boids(boids);
 			}
 		}
 
+		/*
+		* Window class destructor
+		* 
+		*/
 		~Window() {
 			delete[] sprite_ptr;
 		}
@@ -45,22 +59,20 @@ class Window{
 		sf::RectangleShape bounding_box;
 
 		size_t num_sim;
-		int width, height;
+		
+		size_t width, height;
+		size_t box_margin; //uninit;
 
 		dim3 grid_dim;
 		dim3 block_dim;
 
 		/*
-		* 
-		* 
 		* Display the boids
-		* Currently trying to offload the work to gpu somehow.
-		* 
+		* Change the sprites position to be x,y that we found.
+		* Uses rotation values calculated on gpu.
 		*/
 		void draw_boids(boids_inter & boids) 
 		{
-			//
-			//
 			window.clear();
 			window.draw(bounding_box);
 			for (size_t i = 0; i < boids.get_boids_len(); ++i) {
@@ -93,11 +105,8 @@ class Window{
 		}
 
 		/*
-		* 
-		* 
-		* Updates the position of the boids based on the rules and what is currently in the environment 
-		*  Currently broken due to certain vars like boids not being accessable (in environment)
-		*
+		* Updates the position of the boids 
+		* TODO : move cuda call to allow for more time between call and sync().
 		*/
 		void update_boids(boids_inter & boids)
 		{
@@ -135,6 +144,10 @@ class Window{
 			}
 		}
 
+		/*
+		* Calculate the necessary dimensions of the cuda kernel launch
+		* 
+		*/
 		void calc_grids()
 		{
 			block_dim = dim3(8, 8, 1);
@@ -143,10 +156,7 @@ class Window{
 		}
 
 		/*
-		* 
-		* 
-		* 		Update the state of the program based on SFML Events
-		* 
+		* Update the state of the window based on SFML Events
 		*		
 		*/
 		void get_updates() {

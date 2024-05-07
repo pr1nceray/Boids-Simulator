@@ -1,6 +1,9 @@
 #pragma once
 #include "boid_ops.cuh"
 
+/*
+* Adjust the position based on the rules of the environment.
+*/
 __global__  void boid_behave(environment local_env, boids_inter boids) 
 {
 	
@@ -78,6 +81,9 @@ __global__  void boid_behave(environment local_env, boids_inter boids)
 
 
 
+/*
+* Prints the list of boids on the device.
+*/
 
 __device__ void print_list_device(environment& env, boids_inter & boids)
 {
@@ -89,7 +95,9 @@ __device__ void print_list_device(environment& env, boids_inter & boids)
 	}
 }
 
-
+/*
+* Prints the list of boids on the host.
+*/
 __device__ void print_list_host(environment& env, boids_inter& boids)
 {
 	for (int i = 0; i < boids.get_boids_len(); ++i)
@@ -101,6 +109,9 @@ __device__ void print_list_host(environment& env, boids_inter& boids)
 }
 
 
+/*
+* Adjust the bounds of the boids to remain within the box.
+*/
 __device__ __inline__ void adjust_bounds(environment& local_env, boid & cur)
 {
 
