@@ -1,6 +1,6 @@
 # Boids - Simulator 
 
-[Screenshot](/GH-Resources/Capture.png)
+![Screenshot](/GH-Resources/Capture.png)
 
 Boids-Simulator is an sfml/cuda based simulation based around bird-oid objects
 
