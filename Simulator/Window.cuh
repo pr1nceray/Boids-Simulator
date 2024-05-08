@@ -82,6 +82,7 @@ class Window{
 			}
 			window.display();
 		}
+
 		/*
 		* Create and display the bounding box that the boids obey
 		* 
@@ -90,7 +91,7 @@ class Window{
 		{
 
 			if (width < 200 || height < 200) {
-				std::cout << "bad dimeons. replace with error.";
+				std::cout << "bad dimensions. replace with error.";
 				exit(1);
 			}
 			bounding_box = sf::RectangleShape(sf::Vector2f(width - 400, height - 200));
@@ -131,7 +132,7 @@ class Window{
 		*/
 		void init_sprites(size_t len)
 		{
-			if (!txt.loadFromFile("arrow.png"))
+			if (!txt.loadFromFile("./assets/arrow.png"))
 			{
 				std::cout << "Error with loading image.Replace with error and propper error handling";
 				exit(1);
