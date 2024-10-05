@@ -2,7 +2,7 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
-__device__ __host__ struct vector2f
+struct vector2f
 {
 	float x, y;
 	vector2f()

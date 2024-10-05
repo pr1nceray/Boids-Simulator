@@ -1,10 +1,8 @@
-﻿#pragma once
-#include "Window.cuh"
-
+﻿#include "Window.cuh"
 
 int main()
 {
-	Window render(1024);
+	Window render(64);
 
 	render.Display();
 }

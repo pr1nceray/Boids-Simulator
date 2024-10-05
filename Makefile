@@ -7,7 +7,7 @@ CU_SOURCES := $(wildcard $(addsuffix /*.cu, $(SOURCE_DIR)))
 FILES := $(CUH_SOURCES) $(CU_SOURCES)
 
 #CFLAGS  := -std=c++20 -pedantic -Wall -Wextra -Wshadow -Wwrite-strings -O3
-LDFLAGS := -lsfml-graphics -lsfml-window -lsfml-system -L./lib -lsfml-widgets -lGL
+LDFLAGS := -ccbin /usr/bin/gcc-13 -lstdc++ -L./lib -lsfml-widgets -lsfml-graphics -lsfml-window -lsfml-system -lGL
 
 STYLE_CHECKER := cpplint
 STYLE_HEADERS := --headers=cuh,h,hpp

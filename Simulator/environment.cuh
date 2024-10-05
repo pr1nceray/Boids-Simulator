@@ -1,6 +1,7 @@
 #pragma once
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
+#include "cuda_fp16.h"
 #include <iostream>
 #include "boid.cuh"
 
@@ -9,7 +10,7 @@
 * TODO : fix margin box.
 */
 
-__host__ __device__ struct environment
+struct environment
 {
 	private:
 	size_t margin_x, margin_y; //number of pixels inbetween the edge of screen and bounding box.
@@ -148,70 +149,94 @@ __host__ __device__ struct environment
 };
 
 
-__host__ __device__ struct boids_inter {
+struct boids_inter {
 
 	public:
-	
-	boid* boids_host; // boids on the host
-	boid* boids_dev; // boids on the gpu.
+
+  int * boid_locs_h;
+  half * boid_velocities_h;
+  float * boid_rot_h;
+
+
+  int * boid_locs_d;
+  half *  boid_velocities_d;
+  float * boid_rot_d;
+
 
 	size_t boid_len; //length of boids
 
-	
-	__host__ boids_inter(size_t num_simulate) 
+  __host__ void alloc_host(size_t num_alloc) {
+    const int num_alloc_t2 = num_alloc * 2;
+    boid_locs_h = new int[num_alloc_t2];
+    boid_velocities_h = new __half[num_alloc_t2];
+    boid_rot_h = new float[num_alloc];
+
+    for(size_t i = 0; i < num_alloc; ++i){
+      boid_locs_h[i * 2] = 600 + (400 - rand() % 800);
+	  	boid_locs_h[(i * 2) + 1] = 400 + (200 - rand() % 400);
+		  boid_velocities_h[i * 2] = __float2half(1.0f - ((rand() % 500) / 250.0f));
+      boid_velocities_h[(i * 2) + 1] = __float2half(1.0f - ((rand() % 500) / 250.0f));
+		  boid_rot_h[i] = 90.0f;
+    }
+  }
+  __host__ void alloc_device(size_t num_alloc){
+    const int num_alloc_t2 = num_alloc * 2;
+
+    if(
+      cudaMalloc((void **)&boid_locs_d, sizeof(int) * num_alloc_t2) ||
+      cudaMalloc((void **)&boid_velocities_d, sizeof(half) * num_alloc_t2) ||
+      cudaMalloc((void **)&boid_rot_d, sizeof(float) * num_alloc)
+      ){
+        std::cout << "error with cuda malloc. CHANGE THIS TO AN ERROR.";
+			  exit(1);
+    }
+
+    if(
+      cudaMemcpy((void*)boid_locs_d, (void*)boid_locs_h, sizeof(int) * num_alloc_t2, cudaMemcpyHostToDevice) ||
+      cudaMemcpy((void*)boid_velocities_d, (void*)boid_velocities_h, sizeof(half) * num_alloc_t2, cudaMemcpyHostToDevice) || 
+      cudaMemcpy((void*)boid_rot_d, (void*)boid_rot_h, sizeof(float) * num_alloc, cudaMemcpyHostToDevice) 
+    ) {
+      std::cout << "error with cudaMemcpy. CHANGE THIS TO AN ERROR.";
+			exit(1);
+    }
+    
+  }
+
+
+ 	__host__ boids_inter(size_t num_simulate) 
 		: boid_len(num_simulate)
 	{
 		if (boid_len == 0) {
 			return;
 		}
 
-		boids_host = new boid[boid_len];
-
-		cudaError_t err;
-		err = cudaMalloc((void**)&boids_dev, sizeof(boid) * boid_len);
-		if (err != 0) {
-			std::cout << "error with cuda malloc. CHANGE THIS TO AN ERROR.";
-			exit(1);
-		}
-
-		err = cudaMemcpy((void*)boids_dev, (void*)boids_host, sizeof(boid)* boid_len, cudaMemcpyHostToDevice);
-		if (err != 0) {
-			std::cout << "error with cudaMemcpy. CHANGE THIS TO AN ERROR.";
-			exit(1);
-		}
+		alloc_host(num_simulate);
+    alloc_device(num_simulate);
 	}
-
-
 
 
 	__host__ void delete_dev() {
 		if (boid_len == 0) {
 			return;
 		}
-		cudaFree(boids_dev);
-		delete[] boids_host;
+    // new
+    cudaFree(boid_locs_d);
+    cudaFree(boid_rot_d);
+    cudaFree(boid_velocities_d);
+
+    delete[] boid_locs_h;
+    delete[] boid_rot_h;
+    delete[] boid_velocities_h;
+
+
 	}
 
 	/*
 	* Getters/Setters for the boid variables
 	*/
 
-
-	__inline__ __host__ __device__ boid* get_boids_device()
-	{
-		return boids_dev;
-	}
-
-
-	__inline__ __host__ __device__ boid* get_boids_host()
-	{
-		return boids_host;
-	}
-
 	__inline__ __host__ __device__ size_t get_boids_len()
 	{
 		return boid_len;
 	}
-
-
 };

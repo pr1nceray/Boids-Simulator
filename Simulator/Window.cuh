@@ -76,8 +76,8 @@ class Window{
 			window.clear();
 			window.draw(bounding_box);
 			for (size_t i = 0; i < boids.get_boids_len(); ++i) {
-				sprite_ptr[i].setPosition(boids.get_boids_host()[i].x, boids.get_boids_host()[i].y);
-				sprite_ptr[i].setRotation(boids.get_boids_host()[i].rot );
+				sprite_ptr[i].setPosition(boids.boid_locs_h[2 * i], boids.boid_locs_h[2 * i + 1]);
+				sprite_ptr[i].setRotation(boids.boid_rot_h[i]);
 				window.draw(sprite_ptr[i]);
 			}
 			window.display();
@@ -112,14 +112,19 @@ class Window{
 		void update_boids(boids_inter & boids)
 		{
 
-			boid_behave <<<grid_dim, block_dim>>> (env, boids);
+			boid_behave <<<grid_dim, block_dim>>> (env, boids.get_boids_len(), boids.boid_locs_d, boids.boid_velocities_d, boids.boid_rot_d);
 
 			cudaError_t err = cudaDeviceSynchronize();
 			if (err != 0) {
 				std::cout << "an error has occured during sync.";
 				exit(1);
 			}
-			err =  cudaMemcpy(boids.get_boids_host(), boids.get_boids_device(), sizeof(boid) * boids.get_boids_len(), cudaMemcpyDeviceToHost);
+			err =  cudaMemcpy(boids.boid_locs_h, boids.boid_locs_d, sizeof(int) * 2 * boids.get_boids_len(), cudaMemcpyDeviceToHost);
+			if (err != cudaSuccess) {
+				std::cout << "an error has occured during memcpy. Error code : " << err;
+				exit(1);
+			}
+      err =  cudaMemcpy(boids.boid_rot_h, boids.boid_rot_d, sizeof(float) * boids.get_boids_len(), cudaMemcpyDeviceToHost);
 			if (err != cudaSuccess) {
 				std::cout << "an error has occured during memcpy. Error code : " << err;
 				exit(1);
@@ -151,8 +156,8 @@ class Window{
 		*/
 		void calc_grids()
 		{
-			block_dim = dim3(8, 8, 1);
-			grid_dim = dim3(int(num_sim / 64) + (num_sim %64==0?0:1) ,1,1);
+			block_dim = dim3(512, 1, 1);
+			grid_dim = dim3(int((num_sim +511)/512),1,1);
 
 		}
 
